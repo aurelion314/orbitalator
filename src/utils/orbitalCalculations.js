@@ -172,11 +172,13 @@ function findTimeAtPoint(orbitalElements, point) {
  * @param {number} timeWindow - The time difference (in seconds) to consider a collision risk.
  * @returns {object|null} Collision information or null if no collision is predicted.
  */
-export function checkCollision(elements1, elements2, timeWindow = 60) { // 1 minute window
-    const intersections = findIntersectionPoints(elements1, elements2);
+export function checkCollision(elements1, elements2, timeWindow = 60, currentTime = 0) {
+    const intersections = findIntersectionPoints(elements1, elements2, 100000); // Use a larger threshold
     if (intersections.length === 0) {
         return null;
     }
+
+    let overallEarliestCollision = null;
 
     const period1 = 2 * Math.PI * Math.sqrt(Math.pow(elements1.semiMajorAxis, 3) / MU);
     const period2 = 2 * Math.PI * Math.sqrt(Math.pow(elements2.semiMajorAxis, 3) / MU);
@@ -185,39 +187,43 @@ export function checkCollision(elements1, elements2, timeWindow = 60) { // 1 min
         const time1AtIntersection = findTimeAtPoint(elements1, intersection);
         const time2AtIntersection = findTimeAtPoint(elements2, intersection);
 
-        // We need to account for the initial phase (mean anomaly) and orbital periods
-        const t1 = (time1AtIntersection - (elements1.meanAnomaly / (2 * Math.PI)) * period1 + period1) % period1;
-        const t2 = (time2AtIntersection - (elements2.meanAnomaly / (2 * Math.PI)) * period2 + period2) % period2;
+        // Time for the first pass after epoch
+        const t1_first = (time1AtIntersection - (elements1.meanAnomaly / (2 * Math.PI)) * period1 + period1) % period1;
+        const t2_first = (time2AtIntersection - (elements2.meanAnomaly / (2 * Math.PI)) * period2 + period2) % period2;
 
-        // Check for time alignment over the full simulation duration
-        let earliestCollisionTime = Infinity;
+        // Search for collisions in the future
+        for (let i = 0; i < (SIMULATION_DURATION / period1) + 2; i++) {
+            const time1 = t1_first + i * period1;
 
-        for (let i = 0; i < (SIMULATION_DURATION / period1) + 1; i++) {
-            const timeToCollision1 = t1 + i * period1;
-            if (timeToCollision1 > SIMULATION_DURATION) break;
+            if (time1 < currentTime) continue; // Only look for future collisions
+            if (time1 > SIMULATION_DURATION) break;
 
-            // Find the closest approach of sat2 to this time
-            const j = Math.round((timeToCollision1 - t2) / period2);
-            const timeToCollision2 = t2 + j * period2;
+            // Find the closest pass for satellite 2
+            const j_closest = Math.round((time1 - t2_first) / period2);
 
-            const timeDiff = Math.abs(timeToCollision1 - timeToCollision2);
+            // Check this j and its neighbours for robustness
+            for (let j = j_closest - 1; j <= j_closest + 1; j++) {
+                if (j < 0) continue;
+                const time2 = t2_first + j * period2;
+                if (time2 > SIMULATION_DURATION) continue;
 
-            if (timeDiff < timeWindow) {
-                const collisionTime = Math.min(timeToCollision1, timeToCollision2);
-                if (collisionTime < earliestCollisionTime) {
-                    earliestCollisionTime = collisionTime;
+                const timeDiff = Math.abs(time1 - time2);
+
+                if (timeDiff < timeWindow) {
+                    const collisionTime = (time1 + time2) / 2;
+                    if (collisionTime < currentTime) continue; // Double check it's in the future
+
+                    if (!overallEarliestCollision || collisionTime < overallEarliestCollision.timeToCollision) {
+                        overallEarliestCollision = {
+                            willCollide: true,
+                            timeToCollision: collisionTime,
+                            location: intersection
+                        };
+                    }
                 }
             }
         }
-
-        if (earliestCollisionTime !== Infinity) {
-             return {
-                willCollide: true,
-                timeToCollision: earliestCollisionTime,
-                location: intersection
-            };
-        }
     }
 
-    return null;
+    return overallEarliestCollision;
 }

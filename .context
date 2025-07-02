@@ -82,18 +82,25 @@ Your Goal: To ensure that this .context file remains a reliable and up-to-date r
 
 
 ### Backlog
-High Priority
-- Fix go to collision button (doesn't work currently)
-- Allow entering values manually
-- Adjust label text or styling to use less space (some of them wraps right now)
-Low Priority
+**High Priority**
+- Update next collision checker to use larger threshold and check further to make it more likely to find collisions.
+- Add reset time button to reset the simulation to the start.
+- Add helper tooltips to explain the various orbital parameters.
+- Add some selectable default satellite configurations for exploration. Ex: Same orbit, different inclinations, different eccentricities, etc.
+
+**Low Priority**
 - Allow renaming satellites
 - Additional satellites
-- Implement improved sattelite value comparison
+- Implement improved satellite value comparison
 
 ## 5. Development Log
 
-- **2025-07-02:**
+- **2025-07-02 (Afternoon):**
+  - **Collision Detection:** Fixed the "Go to Collision" button by implementing a more robust collision prediction algorithm in `orbitalCalculations.js` and ensuring the simulation jumps to the correct time.
+  - **Manual Input:** Enabled direct numerical input for all satellite parameters by replacing text readouts with input fields and creating a two-way data binding with the existing sliders in `main.js`.
+  - **UI Styling:** Refactored the control panel's CSS to use a flexible layout, preventing label text from wrapping and improving overall readability.
+
+- **2025-07-02 (Morning):**
   - Fixed satellite visibility bug caused by incorrect scaling of position vectors.
   - Replaced the satellite selection slider with a more intuitive button-based selector.
   - Updated UI logic and styling to support the new selector.

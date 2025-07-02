@@ -84,6 +84,13 @@ const timelineMarker = document.getElementById('timeline-marker');
 const satellites = [satellite1, satellite2];
 const satButtons = [sat1Button, sat2Button];
 
+const semiMajorAxisValue = document.getElementById('semi-major-axis-value');
+const eccentricityValue = document.getElementById('eccentricity-value');
+const inclinationValue = document.getElementById('inclination-value');
+const lonAscendingNodeValue = document.getElementById('lon-ascending-node-value');
+const argPerigeeValue = document.getElementById('arg-perigee-value');
+const meanAnomalyValue = document.getElementById('mean-anomaly-value');
+
 function updateUI() {
     // Update active button
     const activeIndex = satellites.indexOf(activeSatellite);
@@ -91,21 +98,21 @@ function updateUI() {
         button.classList.toggle('active', index === activeIndex);
     });
 
-    // Update sliders
-    semiMajorAxisSlider.value = activeSatellite.orbitalElements.semiMajorAxis / 1000;
-    eccentricitySlider.value = activeSatellite.orbitalElements.eccentricity;
-    inclinationSlider.value = activeSatellite.orbitalElements.inclination;
-    lonAscendingNodeSlider.value = activeSatellite.orbitalElements.lonAscendingNode;
-    argPerigeeSlider.value = activeSatellite.orbitalElements.argPerigee;
-    meanAnomalySlider.value = activeSatellite.orbitalElements.meanAnomaly;
+    // Update sliders & readouts
+    const elements = activeSatellite.orbitalElements;
+    semiMajorAxisSlider.value = elements.semiMajorAxis / 1000;
+    eccentricitySlider.value = elements.eccentricity;
+    inclinationSlider.value = elements.inclination;
+    lonAscendingNodeSlider.value = elements.lonAscendingNode;
+    argPerigeeSlider.value = elements.argPerigee;
+    meanAnomalySlider.value = elements.meanAnomaly;
 
-    // Update readouts
-    document.getElementById('semi-major-axis-value').textContent = semiMajorAxisSlider.value;
-    document.getElementById('eccentricity-value').textContent = eccentricitySlider.value;
-    document.getElementById('inclination-value').textContent = inclinationSlider.value;
-    document.getElementById('lon-ascending-node-value').textContent = lonAscendingNodeSlider.value;
-    document.getElementById('arg-perigee-value').textContent = argPerigeeSlider.value;
-    document.getElementById('mean-anomaly-value').textContent = meanAnomalySlider.value;
+    semiMajorAxisValue.value = (elements.semiMajorAxis / 1000).toFixed(0);
+    eccentricityValue.value = elements.eccentricity.toFixed(2);
+    inclinationValue.value = elements.inclination.toFixed(2);
+    lonAscendingNodeValue.value = elements.lonAscendingNode.toFixed(2);
+    argPerigeeValue.value = elements.argPerigee.toFixed(2);
+    meanAnomalyValue.value = elements.meanAnomaly.toFixed(2);
 }
 
 sat1Button.addEventListener('click', () => {
@@ -118,47 +125,50 @@ sat2Button.addEventListener('click', () => {
     updateUI();
 });
 
-semiMajorAxisSlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.semiMajorAxis = e.target.value * 1000;
-    activeSatellite.updateOrbit();
-    updateIntersections();
-    updateUI();
-});
+function linkSliderAndInput(slider, input, property, isPathChanging, multiplier = 1, fixed = 2) {
+    input.step = slider.step || 0.01;
+    input.min = slider.min;
+    input.max = slider.max;
 
-eccentricitySlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.eccentricity = parseFloat(e.target.value);
-    activeSatellite.updateOrbit();
-    updateIntersections();
-    updateUI();
-});
+    const updateOrbitState = () => {
+        if (isPathChanging) {
+            activeSatellite.updateOrbit();
+            updateIntersections();
+            collisionCheckCounter = 1.1; // Force collision re-check
+        }
+    };
 
-inclinationSlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.inclination = parseFloat(e.target.value);
-    activeSatellite.updateOrbit();
-    updateIntersections();
-    updateUI();
-});
+    slider.addEventListener('input', e => {
+        const value = parseFloat(e.target.value);
+        input.value = value.toFixed(fixed);
+        activeSatellite.orbitalElements[property] = value * multiplier;
+        updateOrbitState();
+    });
 
-meanAnomalySlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.meanAnomaly = parseFloat(e.target.value);
-    activeSatellite.updateOrbit();
-    // No need to update intersections here, as mean anomaly doesn't change the path
-    updateUI();
-});
+    input.addEventListener('change', e => {
+        let value = parseFloat(e.target.value);
+        const min = parseFloat(slider.min);
+        const max = parseFloat(slider.max);
 
-lonAscendingNodeSlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.lonAscendingNode = parseFloat(e.target.value);
-    activeSatellite.updateOrbit();
-    updateIntersections();
-    updateUI();
-});
+        if (isNaN(value)) {
+            value = activeSatellite.orbitalElements[property] / multiplier;
+        }
+        if (value < min) value = min;
+        if (value > max) value = max;
 
-argPerigeeSlider.addEventListener('input', (e) => {
-    activeSatellite.orbitalElements.argPerigee = parseFloat(e.target.value);
-    activeSatellite.updateOrbit();
-    updateIntersections();
-    updateUI();
-});
+        input.value = value.toFixed(fixed);
+        slider.value = value;
+        activeSatellite.orbitalElements[property] = value * multiplier;
+        updateOrbitState();
+    });
+}
+
+linkSliderAndInput(semiMajorAxisSlider, semiMajorAxisValue, 'semiMajorAxis', true, 1000, 0);
+linkSliderAndInput(eccentricitySlider, eccentricityValue, 'eccentricity', true, 1, 2);
+linkSliderAndInput(inclinationSlider, inclinationValue, 'inclination', true, 1, 2);
+linkSliderAndInput(lonAscendingNodeSlider, lonAscendingNodeValue, 'lonAscendingNode', true, 1, 2);
+linkSliderAndInput(argPerigeeSlider, argPerigeeValue, 'argPerigee', true, 1, 2);
+linkSliderAndInput(meanAnomalySlider, meanAnomalyValue, 'meanAnomaly', false, 1, 2);
 
 // --- Intersection Logic ---
 function updateIntersections() {
@@ -232,7 +242,7 @@ function animate() {
     // --- Collision Check (run periodically) ---
     collisionCheckCounter += deltaTime;
     if (collisionCheckCounter > 1) { // Check every 1 second
-        nextCollisionInfo = checkCollision(satellite1.orbitalElements, satellite2.orbitalElements);
+        nextCollisionInfo = checkCollision(satellite1.orbitalElements, satellite2.orbitalElements, 60, simulationTime);
         if (nextCollisionInfo && nextCollisionInfo.willCollide) {
             timelineMarker.style.display = 'block';
             timelineMarker.style.left = `${(nextCollisionInfo.timeToCollision / SIMULATION_DURATION) * 100}%`;
@@ -243,7 +253,7 @@ function animate() {
     }
 
     // Display collision alert if close
-    if (nextCollisionInfo && nextCollisionInfo.willCollide && Math.abs(nextCollisionInfo.timeToCollision - simulationTime) < 60) {
+    if (nextCollisionInfo && nextCollisionInfo.willCollide && Math.abs(nextCollisionInfo.timeToCollision - simulationTime) < nextCollisionInfo.timeDifference) {
         collisionAlert.style.display = 'block';
         collisionAlert.classList.add('flashing');
         const timeToImpact = nextCollisionInfo.timeToCollision - simulationTime;
@@ -273,7 +283,13 @@ pausePlayButton.addEventListener('click', () => {
 
 nextCollisionButton.addEventListener('click', () => {
     if (nextCollisionInfo && nextCollisionInfo.willCollide) {
-        simulationTime = nextCollisionInfo.timeToCollision;
+        // Jump to 10 seconds before the collision
+        simulationTime = nextCollisionInfo.timeToCollision - 10;
+        if (simulationTime < 0) {
+            simulationTime = 0;
+        }
+        isPaused = false; // Ensure simulation is running
+        pausePlayButton.textContent = '❚❚';
     }
 });
 
