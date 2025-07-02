@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orbital Simulator</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="simulation-container"></div>
+    <div id="control-panel">
+      <h2>Orbitalator</h2>
+      <div class="control-group">
+        <label for="time-speed">Simulation Speed</label><span id="time-speed-value" class="slider-value">100x</span>
+        <input type="range" id="time-speed" name="time-speed" min="0" max="500" value="100">
+      </div>
+      <div class="control-group">
+        <label>Satellite</label>
+        <div id="satellite-selector" class="selector-buttons">
+            <button id="sat1-button" class="active">Satellite 1</button>
+            <button id="sat2-button">Satellite 2</button>
+        </div>
+      </div>
+      <div class="control-group">
+          <label for="semi-major-axis">Semi-Major axis (km)</label><span id="semi-major-axis-value" class="slider-value"></span>
+          <input type="range" id="semi-major-axis" name="semi-major-axis" min="6500" max="15000" value="7000" step="100">
+      </div>
+      <div class="control-group">
+          <label for="eccentricity">Eccentricity</label><span id="eccentricity-value" class="slider-value"></span>
+          <input type="range" id="eccentricity" name="eccentricity" min="0" max="0.99" value="0.05" step="0.01">
+      </div>
+      <div class="control-group">
+          <label for="inclination">Inclination (rad)</label><span id="inclination-value" class="slider-value"></span>
+          <input type="range" id="inclination" name="inclination" min="0" max="3.14" value="0.5" step="0.01">
+      </div>
+      <div class="control-group">
+          <label for="lon-ascending-node">Longitude of Ascending Node (rad)</label><span id="lon-ascending-node-value" class="slider-value"></span>
+          <input type="range" id="lon-ascending-node" name="lon-ascending-node" min="0" max="6.28" value="0" step="0.01">
+      </div>
+      <div class="control-group">
+          <label for="arg-perigee">Argument of Perigee (rad)</label><span id="arg-perigee-value" class="slider-value"></span>
+          <input type="range" id="arg-perigee" name="arg-perigee" min="0" max="6.28" value="0" step="0.01">
+      </div>
+      <div class="control-group">
+          <label for="mean-anomaly">Mean Anomaly (rad)</label><span id="mean-anomaly-value" class="slider-value"></span>
+          <input type="range" id="mean-anomaly" name="mean-anomaly" min="0" max="6.28" value="0" step="0.01">
+      </div>
+    </div>
+    <div id="bottom-bar">
+        <div id="time-controls">
+            <button id="time-back-button" title="Jump Back 10min">&laquo;</button>
+            <button id="pause-play-button" title="Pause/Play">❚❚</button>
+            <button id="time-forward-button" title="Jump Forward 10min">&raquo;</button>
+            <button id="next-collision-button" title="Go to Next Collision">💥</button>
+            <span id="info-display"></span>
+        </div>
+        <div id="timeline-container">
+            <div id="timeline-progress"></div>
+            <div id="timeline-marker"></div>
+        </div>
+        <button id="collision-alert" style="display: none;">COLLISION ALERT</button>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
