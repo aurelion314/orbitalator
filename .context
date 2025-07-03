@@ -1,0 +1,95 @@
+# Context File Maintenance Instructions
+Your Role: You are the primary maintainer of this .context file. Before undertaking any new task (e.g., implementing a feature, fixing a bug), you will first read this file to gain full context. After completing a task that changes the project's state, you will update this file accordingly.
+
+Updating the Context:
+
+When a new library or dependency is added, update the Technical Stack.
+
+When a new feature is implemented, add it to the Core Features list and detail its UI/UX implementation in the UI/UX Mockup Breakdown.
+
+If a design decision is made (e.g., choosing a specific UI framework), update the relevant section.
+
+If the project structure is defined (e.g., file and folder organization), add a new section for Project Structure.
+
+Always maintain a concise and accurate representation of the current state of the project.
+
+Your Goal: To ensure that this .context file remains a reliable and up-to-date resource for any developer (human or AI) working on this project.
+
+
+# Orbital Mechanics Simulator - Project Context
+
+## 1. Project Overview
+
+**Objective:** Develop an interactive, web-based 3D simulator to model and visualize the orbits of two satellites around an Earth-like planet. The simulation must calculate and display orbital paths, identify potential intersections, and detect collisions.
+
+**Key Goals:**
+- **Accuracy:** Prioritize accurate orbital calculations.
+- **Usability:** Ensure an intuitive and user-friendly interface.
+- **Visualization:** Provide a clear and aesthetically pleasing 3D representation of the simulation.
+- **Interactivity:** Allow users to manipulate orbital parameters in real-time.
+
+## 2. Core Features
+
+### 3D Visualization
+- A central, rotating, Earth-like celestial body.
+- Two distinct satellites, each with a unique color.
+- Visible orbital paths for each satellite, with visual distinction for the occluded portions (behind the central body).
+
+### Orbital Calculations
+- Accurate propagation of satellite positions over time based on user-defined orbital elements.
+- Real-time detection of orbital path intersections.
+- Collision detection between the two satellites.
+
+### User Interface (UI)
+- A main window for the 3D simulation.
+- A control panel for adjusting simulation and satellite parameters.
+- An information display for real-time data.
+
+## 3. Technical Stack
+
+- **Language:** JavaScript (ES6+)
+- **3D Rendering:** three.js
+- **Orbital Mechanics Calculations:** satellite.js
+- **User Interface Framework:** Vanilla JS, HTML, CSS.
+- **Development Environment:** Node.js and Vite.
+
+## 4. UI/UX Mockup Breakdown
+
+### Main Visualization Window (three.js canvas)
+- **Central Body:** `THREE.SphereGeometry` with a texture map and slow, continuous rotation.
+- **Satellites:** Two `THREE.Mesh` objects with `THREE.SphereGeometry` and distinct `THREE.MeshBasicMaterial` colors.
+- **Orbital Paths:** `THREE.Line` objects using `THREE.BufferGeometry` with calculated future points, matching the satellite's color.
+
+### Intersection/Collision Markers
+- **Intersection:** Small, noticeable meshes (e.g., `THREE.TorusGeometry` or sprites) at calculated intersection points.
+- **Collision:** A prominent visual alert (e.g., flashing sprite, color change) when satellites are predicted to collide. (Temporarily Disabled)
+- **Theme Controls:** Floating icon buttons in the top-right of the simulation window for toggling Earth style and grid visibility. Settings are persisted in Local Storage.
+
+### Control Panel (Sidebar)
+- **Global Controls:**
+  - Play/Pause button.
+  - Reset button.
+  - Time slider for scrubbing.
+  - Time-step controls (1x, 10x, 100x).
+- **Satellite Controls (per satellite):**
+  - A button-based selector to switch between active satellites.
+  - Sliders and numerical inputs for: Semi-Major Axis, Eccentricity, Inclination, Argument of Perigee, Longitude of Ascending Node.
+  - Toggle for satellite/orbit visibility (Future Feature).
+
+### Information Display (Top/Bottom Bar)
+- Current simulation time.
+- "Time to Next Intersection" and coordinates.
+- "COLLISION ALERT" text when a collision is predicted.
+
+
+### Backlog
+**High Priority**
+- [x] Add local storage or something to save settings (theme only for now)
+- [x] Hide collision button and warning (doesn't work at the moment)
+- [x] Clean up styling (especially the theme controls. Should be elegant hovering icons in the simulation window)
+
+**Low Priority**
+- Allow renaming satellites
+- Additional satellites
+- Implement improved satellite value comparison
+

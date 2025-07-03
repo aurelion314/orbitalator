@@ -3,7 +3,7 @@
 
 const G = 6.67430e-11; // Gravitational constant
 const M = 5.972e24;   // Mass of Earth
-const SIMULATION_DURATION = 86400; // 24 hours in seconds
+const SIMULATION_DURATION = 172800; // 48 hours in seconds
 const MU = G * M;     // Standard gravitational parameter
 
 /**
@@ -172,8 +172,9 @@ function findTimeAtPoint(orbitalElements, point) {
  * @param {number} timeWindow - The time difference (in seconds) to consider a collision risk.
  * @returns {object|null} Collision information or null if no collision is predicted.
  */
-export function checkCollision(elements1, elements2, timeWindow = 60, currentTime = 0) {
-    const intersections = findIntersectionPoints(elements1, elements2, 100000); // Use a larger threshold
+export function checkCollision(elements1, elements2, timeWindow = 120, currentTime = 0) {
+    // Increased threshold to 200km to find more potential close approaches.
+    const intersections = findIntersectionPoints(elements1, elements2, 200000);
     if (intersections.length === 0) {
         return null;
     }
