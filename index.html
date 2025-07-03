@@ -23,9 +23,10 @@
     </script>
     <link rel="stylesheet" href="style.css">
   </head>
-  <body class="m-0 font-sans bg-space-dark text-gray-200 flex h-screen overflow-hidden">
+  <body class="m-0 font-sans bg-space-dark text-gray-200 h-screen overflow-hidden">  
+  <div class="grid-container">
     <!-- Simulation Container -->
-    <div id="simulation-container" class="flex-1 relative">
+    <div id="simulation-container" class="simulation-area relative">
       <!-- Theme Controls -->
       <div id="theme-controls" class="absolute top-4 right-4 z-50 flex flex-col gap-2">
         <button id="theme-earth-button" title="Toggle Earth Style" 
@@ -40,7 +41,7 @@
     </div>
 
     <!-- Control Panel -->
-    <div id="control-panel" class="w-80 bg-space-gray shadow-2xl overflow-y-auto overflow-x-hidden z-10 flex flex-col h-screen">
+    <div id="control-panel" class="control-panel bg-space-gray shadow-2xl overflow-y-auto overflow-x-hidden z-10 flex flex-col">
       <!-- Header -->
       <div class="p-5 pb-4 border-b border-space-border flex-shrink-0">
         <h2 class="text-2xl font-semibold text-center text-space-blue mb-4">Orbitalator</h2>
@@ -142,7 +143,7 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div id="bottom-bar" class="fixed bottom-0 left-0 h-16 w-4/5 bg-gray-800 text-gray-200 flex items-center px-5 border-t border-space-border gap-5" >
+    <div id="bottom-bar" class="bottom-bar bg-gray-800 text-gray-200 flex items-center px-5 border-t border-space-border gap-5" >
       <div class="flex-1 flex flex-col items-center gap-2">
         <div id="time-controls" class="flex flex-row items-center justify-start gap-5 w-full">
           <!-- Speed Control -->
@@ -187,6 +188,7 @@
         COLLISION ALERT
       </button>
     </div>
+    </div> <!-- End of grid-container -->
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

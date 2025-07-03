@@ -5,11 +5,26 @@ import { findIntersectionPoints, checkCollision } from './utils/orbitalCalculati
 
 // --- Scene setup ---
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, (window.innerWidth - 300) / (window.innerHeight - 50), 0.1, 2000);
+const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 2000); // Aspect ratio will be updated in resize handler
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 const textureLoader = new THREE.TextureLoader();
-renderer.setSize(window.innerWidth - 300, window.innerHeight - 50);
+
+// Set renderer to fill the container
+renderer.setSize(1, 1); // Initial size, will be updated in resize handler
 document.getElementById('simulation-container').appendChild(renderer.domElement);
+
+// Function to update renderer size based on container size
+function updateRendererSize() {
+    const container = document.getElementById('simulation-container');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+}
+
+// Initial size update
+updateRendererSize();
 
 // --- Controls ---
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -80,7 +95,9 @@ const presets = {
         sat2: { semiMajorAxis: 8000e3, eccentricity: 0.05, inclination: 0.5, lonAscendingNode: 0, argPerigee: 0, meanAnomaly: 1.5 }
     },
     'geo-sync': {
-        sat1: { semiMajorAxis: 42164e3, eccentricity: 0.0, inclination: 0.005, lonAscendingNode: 1.0, argPerigee: 1.0, meanAnomaly: 0 },
+        // Geostationary orbit: 35,786 km altitude (42,164 km from Earth's center)
+        // Zero inclination (equatorial orbit), zero eccentricity (circular)
+        sat1: { semiMajorAxis: 42164e3, eccentricity: 0.0, inclination: 0.0, lonAscendingNode: 0.0, argPerigee: 0.0, meanAnomaly: 0 },
         sat2: { semiMajorAxis: 7500e3, eccentricity: 0.01, inclination: 0.8, lonAscendingNode: 0.2, argPerigee: 0.5, meanAnomaly: 1.0 }
     },
 };
@@ -374,7 +391,10 @@ function animate() {
     //     collisionAlert.classList.remove('flashing');
     // }
 
-    earth.rotation.y += 0.0005;
+    // Earth rotates once every 24 hours (86400 seconds)
+    // Convert to radians per second: 2π / 86400 = ~0.0000727 radians per second
+    // Multiply by deltaTime and simulationSpeed to get the rotation for this frame
+    earth.rotation.y += 0.0000727 * deltaTime * simulationSpeed;
     controls.update();
     renderer.render(scene, camera);
 }
@@ -412,7 +432,5 @@ animate();
 
 // Handle window resizing
 window.addEventListener('resize', () => {
-    camera.aspect = (window.innerWidth - 300) / (window.innerHeight - 50);
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth - 300, window.innerHeight - 50);
+    updateRendererSize();
 });

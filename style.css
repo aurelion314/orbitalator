@@ -1,6 +1,60 @@
+/* Grid Layout */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    grid-template-rows: 1fr auto;
+    grid-template-areas:
+        "simulation sidebar"
+        "bottom-bar sidebar";
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+}
+
+.simulation-area {
+    grid-area: simulation;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-panel {
+    grid-area: sidebar;
+    width: 320px;
+    height: 100%;
+}
+
+.bottom-bar {
+    grid-area: bottom-bar;
+    height: 64px;
+}
+
 /* Canvas styling */
 canvas {
     display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto auto;
+        grid-template-areas:
+            "simulation"
+            "bottom-bar"
+            "sidebar";
+    }
+    
+    .control-panel {
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+    }
+    
+    .bottom-bar {
+        width: 100%;
+    }
 }
 
 /* Active tab styling */
