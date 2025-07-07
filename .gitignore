@@ -5,7 +5,7 @@
 .vite
 
 # Build output
-/dist
+# /dist
 
 # Logs
 npm-debug.log*

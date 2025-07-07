@@ -97,7 +97,9 @@ const presets = {
     'geo-sync': {
         // Geostationary orbit: 35,786 km altitude (42,164 km from Earth's center)
         // Zero inclination (equatorial orbit), zero eccentricity (circular)
+        // This ensures the satellite stays fixed above a point on the equator
         sat1: { semiMajorAxis: 42164e3, eccentricity: 0.0, inclination: 0.0, lonAscendingNode: 0.0, argPerigee: 0.0, meanAnomaly: 0 },
+        // Second satellite with a lower, inclined orbit for comparison
         sat2: { semiMajorAxis: 7500e3, eccentricity: 0.01, inclination: 0.8, lonAscendingNode: 0.2, argPerigee: 0.5, meanAnomaly: 1.0 }
     },
 };
@@ -268,8 +270,8 @@ const themeEarthButton = document.getElementById('theme-earth-button');
 const themeGridButton = document.getElementById('theme-grid-button');
 
 let themeSettings = {
-    earthStyle: 'wireframe', // 'wireframe' or 'texture'
-    gridVisible: false
+    earthStyle: 'texture', // Default: 'texture' for Earth; options: 'wireframe' or 'texture'
+    gridVisible: false     // Default: grid off
 };
 
 function saveThemeSettings() {

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Orbital Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'space-dark': '#1a1a1a',
+              'space-gray': '#2a2a2a',
+              'space-light': '#333333',
+              'space-blue': '#00aaff',
+              'space-border': '#444444'
+            }
+          }
+        }
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-DYw9zIQy.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-30EdfoqH.css">
+  </head>
+  <body class="m-0 font-sans bg-space-dark text-gray-200 h-screen overflow-hidden">  
+  <div class="grid-container">
+    <!-- Simulation Container -->
+    <div id="simulation-container" class="simulation-area relative">
+      <!-- Theme Controls -->
+      <div id="theme-controls" class="absolute top-4 right-4 z-50 flex flex-col gap-2">
+        <button id="theme-earth-button" title="Toggle Earth Style" 
+                class="w-10 h-10 bg-black/50 border border-space-border text-white rounded-full hover:bg-black/80 hover:scale-110 transition-all duration-200 flex items-center justify-center text-xl">
+          🌐
+        </button>
+        <button id="theme-grid-button" title="Toggle Grid" 
+                class="w-10 h-10 bg-black/50 border border-space-border text-white rounded-full hover:bg-black/80 hover:scale-110 transition-all duration-200 flex items-center justify-center text-xl">
+          -
+        </button>
+      </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div id="control-panel" class="control-panel bg-space-gray shadow-2xl overflow-y-auto overflow-x-hidden z-10 flex flex-col">
+      <!-- Header -->
+      <div class="p-5 pb-4 border-b border-space-border flex-shrink-0">
+        <h2 class="text-2xl font-semibold text-center text-space-blue mb-4">Orbitalator</h2>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm text-gray-300 font-medium">Presets</label>
+          <select id="preset-selector" class="px-3 py-2 bg-space-light border border-space-border text-gray-200 rounded text-sm">
+            <option value="collision-course">Collision Course</option>
+            <option value="same-orbit">Same Orbit</option>
+            <option value="geo-sync">Geo-Synchronous</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Satellite Tabs -->
+      <div class="bg-space-light border-b border-space-border flex-shrink-0">
+        <div id="satellite-selector" class="flex">
+          <button id="sat1-button" class="flex-1 px-4 py-3 text-sm font-medium text-gray-400 border-b-2 border-transparent hover:bg-space-blue/10 hover:text-space-blue transition-all duration-200 active-tab">
+            Satellite 1
+          </button>
+          <button id="sat2-button" class="flex-1 px-4 py-3 text-sm font-medium text-gray-400 border-b-2 border-transparent hover:bg-space-blue/10 hover:text-space-blue transition-all duration-200">
+            Satellite 2
+          </button>
+        </div>
+      </div>
+
+      <!-- Parameters Section -->
+      <div class="flex-1 p-5 overflow-y-auto overflow-x-hidden">
+        <h3 class="text-lg font-semibold text-space-blue mb-5 pb-2 border-b border-space-border">Orbital Parameters</h3>
+        
+        <!-- Parameter Controls -->
+        <div class="space-y-4">
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Semi-Major axis (km)</span>
+              <span class="tooltip-trigger" data-tooltip="The semi-major axis determines the size of the orbit. It is half of the longest diameter of the elliptical orbit.">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="semi-major-axis" name="semi-major-axis" min="6500" max="15000" value="7000" step="100" class="flex-1">
+              <input type="number" id="semi-major-axis-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Eccentricity</span>
+              <span class="tooltip-trigger" data-tooltip="Eccentricity defines the shape of the orbit. 0 is a perfect circle, and values closer to 1.0 make the orbit more elliptical.">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="eccentricity" name="eccentricity" min="0" max="0.99" value="0.05" step="0.01" class="flex-1">
+              <input type="number" id="eccentricity-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Inclination (rad)</span>
+              <span class="tooltip-trigger" data-tooltip="Inclination is the tilt of the orbit relative to the Earth's equatorial plane. 0 means it orbits perfectly along the equator.">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="inclination" name="inclination" min="0" max="3.14" value="0.5" step="0.01" class="flex-1">
+              <input type="number" id="inclination-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Longitude of Ascending Node (rad)</span>
+              <span class="tooltip-trigger" data-tooltip="This angle defines the orientation of the orbit's tilt. It's the point where the satellite crosses the equatorial plane from south to north.">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="lon-ascending-node" name="lon-ascending-node" min="0" max="6.28" value="0" step="0.01" class="flex-1">
+              <input type="number" id="lon-ascending-node-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Argument of Perigee (rad)</span>
+              <span class="tooltip-trigger" data-tooltip="This angle defines the orientation of the ellipse in the orbital plane. It specifies the location of the orbit's closest point (perigee) to the Earth.">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="arg-perigee" name="arg-perigee" min="0" max="6.28" value="0" step="0.01" class="flex-1">
+              <input type="number" id="arg-perigee-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+
+          <div class="parameter-group">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm text-gray-300 font-medium flex-1">Mean Anomaly (rad)</span>
+              <span class="tooltip-trigger" data-tooltip="Mean Anomaly specifies the position of the satellite along its orbit at the start of the simulation (epoch).">?</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <input type="range" id="mean-anomaly" name="mean-anomaly" min="0" max="6.28" value="0" step="0.01" class="flex-1">
+              <input type="number" id="mean-anomaly-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div id="bottom-bar" class="bottom-bar bg-gray-800 text-gray-200 flex items-center px-5 border-t border-space-border gap-5" >
+      <div class="flex-1 flex flex-col items-center gap-2">
+        <div id="time-controls" class="flex flex-row items-center justify-start gap-5 w-full">
+          <!-- Speed Control -->
+          <div class="flex items-center gap-3 flex-shrink-0 min-w-64">
+            <label class="text-sm text-gray-300 font-medium whitespace-nowrap">Speed</label>
+            <input type="range" id="time-speed" name="time-speed" min="0" max="1000" value="100" class="flex-1 min-w-24">
+            <span id="time-speed-value" class="font-mono text-sm text-space-blue min-w-10 text-right">100x</span>
+          </div>
+        
+          <div class="time-buttons flex items-center gap-2 flex-wrap">
+            <button id="time-back-button" title="Jump Back 10min" 
+                    class="bg-blue-600 text-white border-none px-4 py-1 rounded cursor-pointer text-lg hover:bg-blue-500 transition-colors">
+              &laquo;
+            </button>
+            <button id="pause-play-button" title="Pause/Play" 
+                    class="bg-blue-600 text-white border-none px-4 py-1 rounded cursor-pointer text-lg hover:bg-blue-500 transition-colors">
+              ❚❚
+            </button>
+            <button id="time-forward-button" title="Jump Forward 10min" 
+                    class="bg-blue-600 text-white border-none px-4 py-1 rounded cursor-pointer text-lg hover:bg-blue-500 transition-colors">
+              &raquo;
+            </button>
+            <button id="next-collision-button" title="Go to Next Collision" style="display: none;" 
+                    class="bg-blue-600 text-white border-none px-4 py-1 rounded cursor-pointer text-lg hover:bg-blue-500 transition-colors">
+              💥
+            </button>
+            <button id="reset-time-button" title="Reset Time" 
+                    class="bg-blue-600 text-white border-none px-4 py-1 rounded cursor-pointer text-lg hover:bg-blue-500 transition-colors">
+              ↺
+            </button>
+            <span id="info-display" class="font-mono min-w-44 text-center mx-2 text-sm"></span>
+          </div>
+        </div>
+        <div id="timeline-container" class="w-full h-2 bg-space-border rounded relative">
+          <div id="timeline-progress" class="w-0 h-full bg-blue-600 rounded"></div>
+          <div id="timeline-marker" class="absolute -top-1 w-1 h-4 bg-yellow-400 rounded transform -translate-x-1/2 hidden"></div>
+        </div>
+      </div>
+      
+      <button id="collision-alert" style="display: none;" 
+              class="absolute -top-11 left-1/2 transform -translate-x-1/2 bg-red-600 text-white border-none px-4 py-2 rounded font-bold z-50">
+        COLLISION ALERT
+      </button>
+    </div>
+    </div> <!-- End of grid-container -->
+  </body>
+</html>
