@@ -84,9 +84,8 @@ Your Goal: To ensure that this .context file remains a reliable and up-to-date r
 
 ### Backlog
 **High Priority**
-- [x] Add local storage or something to save settings (theme only for now)
-- [x] Hide collision button and warning (doesn't work at the moment)
-- [x] Clean up styling (especially the theme controls. Should be elegant hovering icons in the simulation window)
+- Make earth spin speed realistic if it isn't. Fix geostationary orbit to be more realistic (around equator, matching spin speed)
+- Fix styling (switch to grid for main layout, so bottom bar has the right width). Also support responsive design for mobile.
 
 **Low Priority**
 - Allow renaming satellites
