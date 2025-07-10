@@ -10,11 +10,12 @@ const MU = G * M;     // Standard gravitational parameter
  * Calculates the position of a satellite at a given time.
  * @param {object} orbitalElements - The orbital elements of the satellite.
  * @param {number} orbitalElements.semiMajorAxis - Semi-major axis in meters.
- * @param {number} orbitalElements.eccentricity - Eccentricity of the orbit.
- * @param {number} orbitalElements.inclination - Inclination in radians.
- * @param {number} orbitalElements.lonAscendingNode - Longitude of the ascending node in radians.
- * @param {number} orbitalElements.argPerigee - Argument of perigee in radians.
+ * @param {number} orbitalElements.eccentricity - Eccentricity of the orbit (0 ≤ e < 1).
+ * @param {number} orbitalElements.inclination - Inclination in radians (0 ≤ i ≤ π).
+ * @param {number} orbitalElements.lonAscendingNode - Longitude of the ascending node in radians (0 ≤ Ω < 2π).
+ * @param {number} orbitalElements.argPerigee - Argument of perigee in radians (0 ≤ ω < 2π).
  * @param {number} time - The time in seconds since the epoch.
+ * @param {number} meanAnomalyAtEpoch - Mean anomaly at epoch in radians.
  * @returns {object} {x, y, z} position in meters.
  */
 export function calculatePosition(orbitalElements, time, meanAnomalyAtEpoch = 0) {
@@ -31,15 +32,26 @@ export function calculatePosition(orbitalElements, time, meanAnomalyAtEpoch = 0)
     }
 
     // 1. Calculate Mean Anomaly
-    const n = Math.sqrt(MU / Math.pow(semiMajorAxis, 3)); // Mean motion
+    const n = Math.sqrt(MU / Math.pow(semiMajorAxis, 3)); // Mean motion (rad/s)
     const M_t = meanAnomalyAtEpoch + n * time; // Mean anomaly
 
     // 2. Solve Kepler's Equation for Eccentric Anomaly (E)
     // M = E - e * sin(E)
-    // We'll use a simple iterative method (Newton-Raphson could be better)
+    // Using Newton-Raphson method with optimized convergence
     let E = M_t; // Initial guess
-    for (let i = 0; i < 10; i++) { // Iterate a few times for precision
-        E = M_t + eccentricity * Math.sin(E);
+    const maxIterations = eccentricity > 0.8 ? 15 : 8; // Fewer iterations for low eccentricity
+    const tolerance = eccentricity > 0.8 ? 1e-12 : 1e-10; // Relaxed tolerance for low eccentricity
+    
+    for (let i = 0; i < maxIterations; i++) {
+        const sinE = Math.sin(E);
+        const cosE = Math.cos(E);
+        const f = E - eccentricity * sinE - M_t;
+        const df = 1 - eccentricity * cosE;
+        const deltaE = f / df;
+        E -= deltaE;
+        
+        // Early convergence check
+        if (Math.abs(deltaE) < tolerance) break;
     }
 
     // 3. Calculate True Anomaly (nu)
@@ -54,18 +66,31 @@ export function calculatePosition(orbitalElements, time, meanAnomalyAtEpoch = 0)
     // 5. Position in the orbital plane (perifocal frame)
     const x_p = r * Math.cos(nu);
     const y_p = r * Math.sin(nu);
+    const z_p = 0; // In orbital plane
 
-    // 6. Transform to 3D ECI coordinates
+    // 6. Transform to 3D ECI coordinates using rotation matrices
+    // Pre-calculate trigonometric values for efficiency
     const cos_w = Math.cos(argPerigee);
     const sin_w = Math.sin(argPerigee);
-    const cos_Omega = Math.cos(lonAscendingNode);
-    const sin_Omega = Math.sin(lonAscendingNode);
     const cos_i = Math.cos(inclination);
     const sin_i = Math.sin(inclination);
-
-    const x = x_p * (cos_Omega * cos_w - sin_Omega * sin_w * cos_i) - y_p * (cos_Omega * sin_w + sin_Omega * cos_w * cos_i);
-    const y = x_p * (sin_Omega * cos_w + cos_Omega * sin_w * cos_i) - y_p * (sin_Omega * sin_w - cos_Omega * cos_w * cos_i);
-    const z = x_p * (sin_w * sin_i) + y_p * (cos_w * sin_i);
+    const cos_Omega = Math.cos(lonAscendingNode);
+    const sin_Omega = Math.sin(lonAscendingNode);
+    
+    // First rotate by argument of perigee (ω)
+    const x1 = x_p * cos_w - y_p * sin_w;
+    const y1 = x_p * sin_w + y_p * cos_w;
+    const z1 = z_p;
+    
+    // Then rotate by inclination (i)
+    const x2 = x1;
+    const y2 = y1 * cos_i - z1 * sin_i;
+    const z2 = y1 * sin_i + z1 * cos_i;
+    
+    // Finally rotate by longitude of ascending node (Ω)
+    const x = x2 * cos_Omega - y2 * sin_Omega;
+    const y = x2 * sin_Omega + y2 * cos_Omega;
+    const z = z2;
 
     return { x, y, z };
 }
