@@ -21,13 +21,30 @@
         }
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-DYw9zIQy.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-30EdfoqH.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/examples/jsm/controls/OrbitControls.js": "https://unpkg.com/three@0.160.0/examples/jsm/controls/OrbitControls.js"
+      }
+    }
+    </script>
+    <script type="module" crossorigin src="/assets/index-DI2zlLTI.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B0hUlaj4.css">
   </head>
   <body class="m-0 font-sans bg-space-dark text-gray-200 h-screen overflow-hidden">  
   <div class="grid-container">
     <!-- Simulation Container -->
     <div id="simulation-container" class="simulation-area relative">
+      <!-- Loading Overlay -->
+      <div id="loading-overlay" class="absolute inset-0 bg-space-dark/90 backdrop-blur-sm z-40 flex items-center justify-center">
+        <div class="text-center">
+          <div class="loading-spinner mb-4"></div>
+          <div class="text-space-blue text-lg font-medium">Loading Textures...</div>
+          <div class="text-gray-400 text-sm mt-2">Preparing Earth and space environment</div>
+        </div>
+      </div>
+      
       <!-- Theme Controls -->
       <div id="theme-controls" class="absolute top-4 right-4 z-50 flex flex-col gap-2">
         <button id="theme-earth-button" title="Toggle Earth Style" 
@@ -99,10 +116,10 @@
           <div class="parameter-group">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm text-gray-300 font-medium flex-1">Inclination (rad)</span>
-              <span class="tooltip-trigger" data-tooltip="Inclination is the tilt of the orbit relative to the Earth's equatorial plane. 0 means it orbits perfectly along the equator.">?</span>
+              <span class="tooltip-trigger" data-tooltip="Inclination is the tilt of the orbit relative to the Earth's equatorial plane. 0° = equatorial, 90° = polar, >90° = retrograde.">?</span>
             </div>
             <div class="flex items-center gap-3">
-              <input type="range" id="inclination" name="inclination" min="0" max="3.14" value="0.5" step="0.01" class="flex-1">
+              <input type="range" id="inclination" name="inclination" min="0" max="3.14159" value="0.5" step="0.01" class="flex-1">
               <input type="number" id="inclination-value" class="w-20 px-2 py-1 bg-space-light border border-space-border text-gray-200 text-right rounded text-sm font-mono">
             </div>
           </div>
@@ -190,5 +207,6 @@
       </button>
     </div>
     </div> <!-- End of grid-container -->
+
   </body>
 </html>
